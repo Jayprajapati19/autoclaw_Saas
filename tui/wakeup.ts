@@ -5,8 +5,8 @@ import { runCliMode } from "../modes/cli";
 import { runTelegramMode } from "../modes/telegram";
 
 const BANNER_FONT = 'ANSI Shadow';
-const SHADOW = chalk.hex('#5b4d9e');
-const FACE = chalk.hex('#e8dcf8').bold;
+const SHADOW = chalk.hex('#0be124');
+const FACE = chalk.hex('#cd8c14').bold;
 
 function printBannerWithShadow(ascii: string) {
 
@@ -29,9 +29,9 @@ function printBannerWithShadow(ascii: string) {
 export async function runWakeup() {
     let ascii:string;
     try {
-        ascii = figlet.textSync("JayAutoclaw" , {font:BANNER_FONT})
+        ascii = figlet.textSync("Jay-Autoclaw" , {font:BANNER_FONT})
     } catch (error) {
-        ascii = figlet.textSync("JayAutoclaw" , {font:"Standard"})
+        ascii = figlet.textSync("Jay-Autoclaw" , {font:"Standard"})
     }
 
     printBannerWithShadow(ascii)
