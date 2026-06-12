@@ -21,6 +21,7 @@ const TEXT_EXT = new Set([
   ".yaml",
   ".toml",
   ".txt",
+  ".pdf"
 ]);
 
 function isProbablyTextFile(filePath: string): boolean {
