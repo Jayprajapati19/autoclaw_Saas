@@ -7,10 +7,21 @@ import { generatePlan } from "../plan/planner";
 import { planKeyboard, planMessage, planSessions, refreshPlanUi, type PlanSession } from "./plan-session";
 import { approvalDiff, approvalSessions } from "./approval-session";
 
-export function registerHandlers(bot: Telegraf) {
+type NewsControls = {
+  sendNow: () => Promise<void>;
+  stop: () => boolean;
+  isRunning: () => boolean;
+};
+
+async function sendTechNews(ctx: { reply: (text: string, options?: object) => Promise<unknown> }, controls: NewsControls) {
+  await controls.sendNow();
+  await ctx.reply("✅ Tech news sent.");
+}
+
+export function registerHandlers(bot: Telegraf, newsControls: NewsControls) {
   bot.command("start", async (ctx) => {
     if (!isOwner(ctx.chat.id)) return;
-    await ctx.reply(WELCOME, { parse_mode: "Markdown" });
+    await ctx.reply(WELCOME);
   });
 
   bot.command("ask", async (ctx) => {
@@ -34,6 +45,43 @@ export function registerHandlers(bot: Telegraf) {
       });
     await ctx.reply("🤖 Agent is working on your task…");
     void runAgent(ctx, ctx.chat.id, goal).catch(console.error);
+  });
+
+  bot.command("news", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    await ctx.reply("Fetching latest tech news...");
+    void sendTechNews(ctx, newsControls).catch(async (error) => {
+      console.error(error);
+      await ctx.reply("Unable to fetch tech news right now.");
+    });
+  });
+
+  bot.command("news_now", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    await ctx.reply("Fetching latest tech news now...");
+    void sendTechNews(ctx, newsControls).catch(async (error) => {
+      console.error(error);
+      await ctx.reply("Unable to fetch tech news right now.");
+    });
+  });
+
+  bot.command("news_test", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    await ctx.reply("Running tech news test now...");
+    void sendTechNews(ctx, newsControls).catch(async (error) => {
+      console.error(error);
+      await ctx.reply("Test failed while fetching news.");
+    });
+  });
+
+  bot.command("stop", async (ctx) => {
+    if (!isOwner(ctx.chat.id)) return;
+    const stopped = newsControls.stop();
+    if (stopped) {
+      await ctx.reply("🛑 Tech news scheduler stopped. Use /news_now to send manually.");
+    } else {
+      await ctx.reply("ℹ️ Tech news scheduler is already stopped. Use /news_now to send manually.");
+    }
   });
 
   bot.command("plan", async (ctx) => {
